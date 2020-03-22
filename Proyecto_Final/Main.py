@@ -5,16 +5,16 @@ Created on Wed Mar 04 17:45:27 2020
 @author: LuigiZard
 """
 
+from io import BytesIO
 from tkinter import filedialog 
 from PIL import ImageTk
 import PIL.Image
 from tkinter import *
-import os
+import webbrowser, os
 import base64
 
 def browseBtn():
-   
-    filename = filedialog.askopenfilename()
+    filename = filedialog.askopenfilename(filetypes = [('image files', ('.png', '.jpg'))])
     texto.insert(0, filename)
     img = ImageTk.PhotoImage(PIL.Image.open(filename))
     #panel = Label(ventana, image = img)
@@ -32,15 +32,32 @@ def convbase64():
     texto2.insert("1.0", codigo64)
 
 def decode64():
+    global directorio
     myFormats = [('JPEG / JFIF','*.jpg'),\
                      ('Portable Network Graphics','*.png'),\
-                     ('Windows Bitmap','*.bmp'),('CompuServer GIF','*.gif'),]
+                     ('Windows Bitmap','*.bmp'),\
+                     ('CompuServer GIF','*.gif'),]
     baset = texto2.get("1.0", "end")
     filepath = filedialog.asksaveasfilename(filetypes=myFormats)
     imagen = open(filepath, 'wb')
     imagen.write(base64.decodebytes(baset.encode()))
     imagen.close()
+    # image = PIL.Image.open(BytesIO(base64.b64decode(baset)))
+    # image.save(filepath)
+    # image.close()
+    directorio = filepath
 
+def abrirar():
+    cadena = directorio.rsplit('\\')
+    fin = directorio.find(cadena[0], 0)
+    webbrowser.open(os.path.realpath(directorio[0:fin]))
+
+def abririmg():
+    im = PIL.Image.open(directorio)
+    im.show()
+    im.close()
+
+directorio = ""
 ventana = Tk()
 ventana.title("Convertidor imagen a Base64")
 ventana.geometry("800x480")
@@ -63,6 +80,9 @@ texto2.place(x = 114, y = 69)
 buscarImg.place(x = 724, y = 32)
 btnconvertir.place(x = 724, y = 64)
 btndecodificar.place (x = 724, y = 96)
+btnabrirArchivo.place(x = 114, y = 96)
+btnabrirImg.place(x = 256, y = 96)
 panel.place(x = 32, y = 128)
+
 
 ventana.mainloop()
